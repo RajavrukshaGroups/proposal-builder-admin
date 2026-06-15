@@ -14,6 +14,7 @@ const CreateProposal = ({
   proposalData = null,
 }) => {
   const navigate = useNavigate();
+  const [pricingMap, setPricingMap] = useState({});
   //   const savedDraft = JSON.parse(localStorage.getItem("proposalDraft"));
   const savedDraft = !editMode
     ? JSON.parse(localStorage.getItem("proposalDraft"))
@@ -57,6 +58,10 @@ const CreateProposal = ({
   const [pricingData, setPricingData] = useState(savedDraft?.pricingData || []);
 
   const [subtotal, setSubtotal] = useState(savedDraft?.subtotal || 0);
+
+  const [discount, setDiscount] = useState(savedDraft?.discount || 0);
+
+  const [excludeGST, setExcludeGST] = useState(savedDraft?.excludeGST || false);
 
   //   const [selectedServices, setSelectedServices] = useState([]);
   //   const [selectedServices, setSelectedServices] = useState({});
@@ -116,10 +121,31 @@ const CreateProposal = ({
     }
   };
 
+  const fetchPricing = async () => {
+    try {
+      const res = await api.get("/api/pricing/all-pricing");
+      console.log("pricing response", res.data.pricing);
+
+      const map = {};
+
+      //   res.data.pricing.forEach((item) => {
+      //     map[item.serviceId] = item;
+      //   });
+      res.data.pricing.forEach((item) => {
+        map[item.serviceId?._id || item.serviceId] = item;
+      });
+
+      setPricingMap(map);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
     fetchServices();
     fetchSettings();
+    fetchPricing();
   }, []);
 
   useEffect(() => {
@@ -168,6 +194,8 @@ const CreateProposal = ({
     );
 
     setSubtotal(proposalData.subtotal);
+    setDiscount(proposalData.discount || 0);
+    setExcludeGST(proposalData.excludeGST || false);
 
     const selectedServicesObj = {};
 
@@ -216,6 +244,8 @@ const CreateProposal = ({
         selectedTemplate,
         pricingData,
         subtotal,
+        discount,
+        excludeGST,
         step,
       }),
     );
@@ -226,6 +256,8 @@ const CreateProposal = ({
     selectedTemplate,
     pricingData,
     subtotal,
+    discount,
+    excludeGST,
     step,
   ]);
 
@@ -283,9 +315,13 @@ const CreateProposal = ({
 
         subtotal,
 
-        gst: subtotal * 0.18,
+        discount,
+        excludeGST,
 
-        finalAmount: subtotal * 1.18,
+        gst: excludeGST ? 0 : Math.max(subtotal - discount, 0) * 0.18,
+        finalAmount:
+          Math.max(subtotal - discount, 0) +
+          (excludeGST ? 0 : Math.max(subtotal - discount, 0) * 0.18),
 
         status: "draft",
       };
@@ -323,6 +359,8 @@ const CreateProposal = ({
     setSelectedTemplate(null);
     setPricingData([]);
     setSubtotal(0);
+    setDiscount(0);
+    setExcludeGST(0);
     setStep(1);
   };
 
@@ -374,8 +412,13 @@ const CreateProposal = ({
         selectedTemplate: selectedTemplate?._id,
         selectedServices: selectedServicesPayload,
         subtotal,
-        gst: subtotal * 0.18,
-        finalAmount: subtotal * 1.18,
+        discount,
+        excludeGST,
+
+        gst: excludeGST ? 0 : Math.max(subtotal - discount, 0) * 0.18,
+        finalAmount:
+          Math.max(subtotal - discount, 0) +
+          (excludeGST ? 0 : Math.max(subtotal - discount, 0) * 0.18),
       };
 
       await api.put(`/api/proposal/update-proposal/${proposalId}`, payload);
@@ -407,6 +450,8 @@ const CreateProposal = ({
           services={services}
           selectedServices={selectedServices}
           setSelectedServices={setSelectedServices}
+          pricingMap={pricingMap}
+          budgetLevel={formData.budgetLevel}
           setStep={setStep}
         />
       )}
@@ -422,6 +467,10 @@ const CreateProposal = ({
           setPricingData={setPricingData}
           subtotal={subtotal}
           setSubtotal={setSubtotal}
+          discount={discount}
+          setDiscount={setDiscount}
+          excludeGST={excludeGST}
+          setExcludeGST={setExcludeGST}
         />
       )}
       {step === 4 && (
@@ -439,6 +488,8 @@ const CreateProposal = ({
           selectedServices={selectedServices}
           selectedTemplate={selectedTemplate}
           pricingData={pricingData}
+          discount={discount}
+          excludeGST={excludeGST}
           subtotal={subtotal}
           settings={settings}
           setStep={setStep}

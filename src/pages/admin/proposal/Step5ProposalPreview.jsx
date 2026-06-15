@@ -1,4 +1,5 @@
 import React from "react";
+import ProposalTemplateBackground from "./ProposalTemplateBackground";
 
 const Step5ProposalPreview = ({
   formData,
@@ -8,6 +9,8 @@ const Step5ProposalPreview = ({
   selectedTemplate,
   pricingData,
   subtotal,
+  discount,
+  excludeGST,
   settings,
   proposalData,
   setStep,
@@ -70,6 +73,32 @@ const Step5ProposalPreview = ({
   console.log("subtotal", subtotal);
   console.log("formdata", formData);
 
+  //   const discountAmount = Number(discount || 0);
+
+  //   const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
+
+  //   const gstAmount = excludeGST ? 0 : discountedSubtotal * 0.18;
+
+  //   const finalAmount = discountedSubtotal + gstAmount;
+
+  const discountAmount = proposalData
+    ? proposalData.discount
+    : Number(discount || 0);
+
+  const actualSubtotal = proposalData ? proposalData.subtotal : subtotal;
+
+  const discountedSubtotal = Math.max(actualSubtotal - discountAmount, 0);
+
+  const gstAmount = proposalData
+    ? proposalData.gst
+    : excludeGST
+      ? 0
+      : discountedSubtotal * 0.18;
+
+  const finalAmount = proposalData
+    ? proposalData.finalAmount
+    : discountedSubtotal + gstAmount;
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -87,56 +116,96 @@ const Step5ProposalPreview = ({
       </div>
 
       {/* Proposal Container */}
-      <div className="relative max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+      <ProposalTemplateBackground settings={settings}>
         {/* Cover Section */}
-        <div className="bg-slate-950 text-white p-12">
-          <div className="flex justify-between items-start">
-            <div>
-              <img
-                src={settings?.logo}
-                alt="Agency Logo"
-                className="h-20 object-contain mb-6"
-              />
-              <h1 className="text-5xl font-bold">
-                {selectedTemplate?.coverTitle}
-              </h1>
-              <p className="text-cyan-400 text-xl mt-3">
-                {selectedTemplate?.coverSubtitle}
-              </p>
-            </div>
-            <div className="text-right">
+        <div className="relative z-10 p-8 min-h-[700px] flex flex-col">
+          <div className="flex justify-between items-start mb-12">
+            <img
+              src={settings?.logo}
+              alt="Agency Logo"
+              className="h-20 object-contain"
+            />
+            <div className="text-right max-w-xs">
               <h3 className="font-semibold text-xl">{settings?.agencyName}</h3>
+
               <p>{settings?.website}</p>
               <p>{settings?.contactEmail}</p>
               <p>{settings?.contactPhone}</p>
             </div>
           </div>
+          <div className="mt-5">
+            <h1
+              className="
+      text-6xl
+      font-black
+      text-slate-900
+      leading-tight
+max-w-2xl"
+            >
+              {selectedTemplate?.coverTitle}
+            </h1>
 
+            <p className="text-orange-500 text-2xl font-semibold mt-4">
+              {selectedTemplate?.coverSubtitle}
+            </p>
+          </div>
           {/* Proposal Number Badge */}
           <div className="mt-4">
             <span className="bg-cyan-500 text-white px-4 py-2 rounded-full text-sm">
               Proposal No: {proposalNumber}
             </span>
           </div>
-
           <div className="mt-16">
-            <p className="text-slate-400 uppercase">Prepared For</p>
-            <h2 className="text-4xl font-semibold mt-2">
+            <p className="uppercase tracking-[6px] text-slate-500 text-sm">
+              Prepared For
+            </p>
+
+            <h2 className="text-4xl font-bold text-slate-900 mt-4">
               {formData.clientCompany || formData.clientName}
             </h2>
 
-            <p className="mt-3">Contact Person : {formData.clientName}</p>
-
-            <p>Email : {formData.clientEmail}</p>
-
-            <p>Phone : {formData.clientPhone}</p>
+            <div className="mt-6 text-slate-700 space-y-2">
+              <p>Contact Person: {formData.clientName}</p>
+              <p>{formData.clientEmail}</p>
+              <p>{formData.clientPhone}</p>
+            </div>
             <p className="text-slate-400 mt-2">
-              {new Date().toLocaleDateString()}
+              {proposalData
+                ? new Date(proposalData.createdAt).toLocaleDateString()
+                : new Date().toLocaleDateString()}
             </p>
           </div>
+          <div
+            className="
+    mt-8
+    inline-block
+    border-l-4
+    border-orange-500
+    pl-5
+  "
+          >
+            <p className="text-slate-500 text-sm">Proposal Number</p>
+
+            <h3 className="font-bold text-lg">{proposalNumber}</h3>
+
+            <p className="text-slate-500 mt-2">
+              {proposalData
+                ? new Date(proposalData.createdAt).toLocaleDateString()
+                : new Date().toLocaleDateString()}
+            </p>
+          </div>
+          {/* <div className="absolute bottom-8 left-12 right-12 flex justify-between items-end">
+            <div className="max-w-md text-sm">{settings?.address}</div>
+            <div className="text-right text-sm">
+              <div>{settings?.contactPhone}</div>
+              <div>{settings?.contactEmail}</div>
+              <div>{settings?.website}</div>
+            </div>
+          </div> */}
         </div>
         {/* Main Content */}
-        <div className="p-8 space-y-10">
+        <div className="p-8 space-y-8">
           {/* About Company */}
           {selectedTemplate?.aboutCompany && (
             <div>
@@ -146,10 +215,21 @@ const Step5ProposalPreview = ({
               </p>
             </div>
           )}
-
           {/* Executive Summary */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Executive Summary</h2>
+            <h2
+              className="
+    text-3xl
+    font-bold
+    text-slate-900
+    border-l-4
+    border-orange-500
+    pl-4
+    mb-6
+  "
+            >
+              Executive Summary
+            </h2>
             <p className="text-slate-700 leading-8">
               Thank you for considering {settings?.agencyName} as your digital
               growth partner. Based on our understanding of your business goals,
@@ -159,10 +239,21 @@ const Step5ProposalPreview = ({
               have been tailored specifically for your business requirements.
             </p>
           </div>
-
           {/* Client Requirements */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Client Requirements</h2>
+            <h2
+              className="
+    text-3xl
+    font-bold
+    text-slate-900
+    border-l-4
+    border-orange-500
+    pl-4
+    mb-6
+  "
+            >
+              Client Requirements
+            </h2>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <strong>Business Stage:</strong> {formData.businessStage}
@@ -184,7 +275,6 @@ const Step5ProposalPreview = ({
               </div>
             )}
           </div>
-
           {/* Why Choose Us */}
           <div>
             <h2 className="text-2xl font-bold mb-5">
@@ -201,7 +291,6 @@ const Step5ProposalPreview = ({
               </div>
             </div>
           </div>
-
           {/* Selected Services */}
           {selectedTemplate?.includeServices && (
             <div>
@@ -278,7 +367,6 @@ const Step5ProposalPreview = ({
               )}
             </div>
           )}
-
           {/* Pricing Summary (with table) */}
           {selectedTemplate?.includePricing && (
             <div>
@@ -286,14 +374,17 @@ const Step5ProposalPreview = ({
               <div className="border rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-slate-900 text-white">
+                    <tr className="bg-orange-500 text-white">
                       <th className="p-4 text-left">Service</th>
                       <th className="p-4 text-right">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {pricingData?.map((item, index) => (
-                      <tr key={index}>
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
+                      >
                         <td className="p-4 border-b">{item.serviceName}</td>
                         <td className="p-4 border-b text-right">
                           ₹{item.amount.toLocaleString()}
@@ -305,21 +396,36 @@ const Step5ProposalPreview = ({
                 <div className="p-4 bg-slate-100">
                   <div className="flex justify-between mb-2">
                     <strong>Subtotal</strong>
-                    <strong>₹{subtotal.toLocaleString()}</strong>
+                    <strong>₹{actualSubtotal.toLocaleString()}</strong>{" "}
                   </div>
-                  <div className="flex justify-between mb-2">
-                    <strong>GST (18%)</strong>
-                    <strong>₹{(subtotal * 0.18).toLocaleString()}</strong>
-                  </div>
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between mb-2 text-red-600">
+                      <strong>Discount</strong>
+                      <strong>- ₹{discountAmount.toLocaleString()}</strong>
+                    </div>
+                  )}
+
+                  {proposalData?.excludeGST ? (
+                    <div className="flex justify-between mb-2 text-orange-600">
+                      <strong>GST Excluded</strong>
+                      <strong>₹0</strong>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between mb-2">
+                      <strong>GST (18%)</strong>
+                      <strong>₹{gstAmount.toLocaleString()}</strong>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-lg font-bold">
                     <strong>Final Total</strong>
-                    <strong>₹{(subtotal * 1.18).toLocaleString()}</strong>
+                    <strong>₹{finalAmount.toLocaleString()}</strong>
                   </div>
                 </div>
               </div>
             </div>
           )}
-
           {/* Payment Information */}
           <div>
             <h2 className="text-2xl font-bold mb-5">Payment Information</h2>
@@ -344,23 +450,45 @@ const Step5ProposalPreview = ({
               </div>
             </div>
           </div>
-
           {/* Project Timeline */}
           {selectedTemplate?.includeTimeline &&
             selectedTemplate?.timelineContent && (
               <div>
-                <h2 className="text-2xl font-bold mb-4">Project Timeline</h2>
+                <h2
+                  className="
+    text-3xl
+    font-bold
+    text-slate-900
+    border-l-4
+    border-orange-500
+    pl-4
+    mb-6
+  "
+                >
+                  Project Timeline
+                </h2>
                 <div className="bg-slate-100 rounded-xl p-5 whitespace-pre-wrap">
                   {selectedTemplate.timelineContent}
                 </div>
               </div>
             )}
-
           {/* Terms & Conditions */}
           {selectedTemplate?.includeTerms &&
             selectedTemplate?.selectedTerms?.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold mb-4">Terms & Conditions</h2>
+                <h2
+                  className="
+    text-3xl
+    font-bold
+    text-slate-900
+    border-l-4
+    border-orange-500
+    pl-4
+    mb-6
+  "
+                >
+                  Terms & Conditions
+                </h2>
                 <div className="space-y-6">
                   {selectedTemplate.selectedTerms.map((term) => (
                     <div
@@ -388,39 +516,29 @@ const Step5ProposalPreview = ({
                 </div>
               </div>
             )}
-
           {/* Proposal Validity */}
-          <div className="bg-yellow-50 border rounded-xl p-5">
+          <div className="border-l-4 border-orange-500 bg-orange-50 rounded-r-xl p-5">
             <h3 className="font-semibold mb-2">Proposal Validity</h3>
             <p>This proposal is valid for 15 days from the issue date.</p>
           </div>
-        </div>
-        {/* Premium Footer */}
-        <div className="bg-slate-950 text-white p-8">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="mt-10 mb-16 flex justify-between">
             <div>
-              <img src={settings?.logo} alt="" className="h-16 mb-4" />
-            </div>
-            <div>
-              <h3 className="font-semibold mb-3">Contact</h3>
-              <p>{settings?.contactEmail}</p>
-              <p>{settings?.contactPhone}</p>
-              <p>{settings?.whatsappNumber}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-3">Office</h3>
-              <p>{settings?.address}</p>
-              <p>{settings?.website}</p>
-            </div>
-          </div>
-          <div className="border-t border-slate-700 mt-6 pt-4 text-center text-sm">
-            © {new Date().getFullYear()} {settings?.agencyName}
-          </div>
-        </div>
-      </div>
+              <p className="font-semibold">{settings?.agencyName}</p>
 
-      {/* Footer Buttons */}
-      {/* Footer Buttons */}
+              <div className="h-10"></div>
+              <p className="border-t pt-2">Authorized Signature</p>
+            </div>
+            <div>
+              <p>Accepted By Client</p>
+
+              <div className="h-10"></div>
+
+              <p className="border-t pt-2">Signature & Stamp</p>
+            </div>
+          </div>
+        </div>
+      </ProposalTemplateBackground>
+
       {!proposalData && (
         <div className="mt-10 flex justify-between">
           <button

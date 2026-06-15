@@ -10,6 +10,10 @@ const Step3PricingSummary = ({
   setPricingData,
   subtotal,
   setSubtotal,
+  discount,
+  setDiscount,
+  excludeGST,
+  setExcludeGST,
 }) => {
   //   const [pricingData, setPricingData] = useState([]);
   //   const [subtotal, setSubtotal] = useState(0);
@@ -97,6 +101,14 @@ const Step3PricingSummary = ({
   useEffect(() => {
     calculatePricing();
   }, [services, selectedServices, formData.budgetLevel]);
+
+  const discountAmount = Number(discount || 0);
+
+  const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
+
+  const gstAmount = excludeGST ? 0 : discountedSubtotal * 0.18;
+
+  const finalAmount = discountedSubtotal + gstAmount;
 
   return (
     <div className="p-6">
@@ -203,7 +215,7 @@ const Step3PricingSummary = ({
             </p>
 
             <p>
-              <p>
+              {/* <p>
                 <strong>Subtotal:</strong> ₹{subtotal.toLocaleString()}
               </p>
               <p>
@@ -213,8 +225,63 @@ const Step3PricingSummary = ({
               <p>
                 <strong>Final Amount:</strong> ₹
                 {(subtotal * 1.18).toLocaleString()}
-              </p>{" "}
+              </p> */}
+
+              <p>
+                <strong>Subtotal:</strong> ₹{subtotal.toLocaleString()}
+              </p>
+
+              <p>
+                <strong>Discount:</strong> ₹{discountAmount.toLocaleString()}
+              </p>
+
+              <p>
+                <strong>After Discount:</strong> ₹
+                {discountedSubtotal.toLocaleString()}
+              </p>
+
+              <p>
+                <strong>GST {excludeGST ? "(Excluded)" : "(18%)"}:</strong> ₹
+                {gstAmount.toLocaleString()}
+              </p>
+
+              <p className="text-cyan-400 text-lg font-bold">
+                <strong>Final Amount:</strong> ₹{finalAmount.toLocaleString()}
+              </p>
             </p>
+          </div>
+
+          <div className="mt-4">
+            <label className="flex items-center gap-2 text-white">
+              <input
+                type="checkbox"
+                checked={excludeGST}
+                onChange={(e) => setExcludeGST(e.target.checked)}
+              />
+              Exclude GST
+            </label>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-white mb-2">Discount Amount</label>
+
+            <input
+              type="number"
+              min="0"
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              className="
+      w-full
+      px-4
+      py-2
+      rounded-lg
+      bg-slate-800
+      border
+      border-slate-700
+      text-white
+    "
+              placeholder="Enter discount"
+            />
           </div>
         </div>
       </div>

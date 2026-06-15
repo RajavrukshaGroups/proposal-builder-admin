@@ -68,6 +68,8 @@ const ViewProposal = () => {
           amount: service.amount,
         }))}
         subtotal={proposal.subtotal}
+        discount={proposal.discount}
+        excludeGST={proposal.excludeGST}
         settings={settings}
         proposalData={proposal} // ADD THIS
         setStep={() => {}}

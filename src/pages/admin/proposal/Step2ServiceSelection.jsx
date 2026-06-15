@@ -3,8 +3,113 @@ const Step2ServiceSelection = ({
   services,
   selectedServices,
   setSelectedServices,
+  pricingMap,
+  budgetLevel,
   setStep,
 }) => {
+  const renderPricingCards = (serviceId) => {
+    console.log("pricingMap", pricingMap);
+    if (!pricingMap?.[serviceId]) return null;
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {[
+          {
+            label: "Basic",
+            price: pricingMap[serviceId]?.basicPrice,
+          },
+          {
+            label: "Growth",
+            price: pricingMap[serviceId]?.growthPrice,
+          },
+          {
+            label: "Premium",
+            price: pricingMap[serviceId]?.premiumPrice,
+          },
+          {
+            label: "Enterprise",
+            price: pricingMap[serviceId]?.enterprisePrice,
+          },
+        ].map((plan) => (
+          <div
+            key={plan.label}
+            className={`w-[120px] py-2 rounded-lg border text-center
+          ${
+            budgetLevel === plan.label
+              ? "border-cyan-500 bg-cyan-500/20"
+              : "border-slate-700 bg-slate-800"
+          }`}
+          >
+            <div className="text-xs text-slate-400">{plan.label}</div>
+
+            <div className="text-white font-semibold">
+              ₹{plan.price?.toLocaleString() || 0}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const getSelectedAmount = (service) => {
+  const pricing = pricingMap?.[service._id];
+
+  if (!pricing) return 0;
+
+  let amount = 0;
+
+  switch (budgetLevel) {
+    case "Basic":
+      amount = pricing.basicPrice;
+      break;
+
+    case "Growth":
+      amount = pricing.growthPrice;
+      break;
+
+    case "Premium":
+      amount = pricing.premiumPrice;
+      break;
+
+    case "Enterprise":
+      amount = pricing.enterprisePrice;
+      break;
+
+    default:
+      amount = 0;
+  }
+
+  if (service.inputType === "counter") {
+    amount *= selectedServices[service._id] || 0;
+  }
+
+  return amount;
+};
+
+const selectedServicesList = services.filter((service) => {
+  const value = selectedServices[service._id];
+
+  if (service.inputType === "checkbox") return value === true;
+
+  if (service.inputType === "counter") return value > 0;
+
+  if (service.inputType === "option-selector")
+    return Array.isArray(value) && value.length > 0;
+
+  if (service.inputType === "text-input")
+    return value && value.trim() !== "";
+
+  return false;
+});
+
+const subtotal = selectedServicesList.reduce(
+  (sum, service) => sum + getSelectedAmount(service),
+  0,
+);
+
+const gst = subtotal * 0.18;
+
+const finalAmount = subtotal + gst;
   return (
     <div className="p-6">
       <div className="p-6">
@@ -23,6 +128,30 @@ const Step2ServiceSelection = ({
           <p className="text-black-400">
             Choose the services required for this proposal.
           </p>
+          <div
+            className="
+    mt-4
+    p-4
+    rounded-xl
+    bg-cyan-500/10
+    border
+    border-cyan-500/30
+  "
+          >
+            <p className="text-slate-400">Selected Budget Plan</p>
+
+            <h2 className="text-cyan-400 text-xl font-bold">
+              {budgetLevel || "Not Selected"}
+            </h2>
+            <p className="text-slate-400 text-sm mt-2">
+              Prices highlighted below are based on the selected
+              <span className="text-cyan-400 font-semibold">
+                {" "}
+                {budgetLevel}
+              </span>{" "}
+              plan.
+            </p>
+          </div>
         </div>
 
         {categories.map((category) => (
@@ -47,36 +176,53 @@ const Step2ServiceSelection = ({
               .map((service) => (
                 <div key={service._id} className="mb-4">
                   {service.inputType === "checkbox" && (
-                    <label className="flex items-center gap-3 text-white">
-                      <input
-                        type="checkbox"
-                        checked={selectedServices[service._id] || false}
-                        onChange={(e) =>
-                          setSelectedServices({
-                            ...selectedServices,
-                            [service._id]: e.target.checked,
-                          })
-                        }
-                      />
+                    <div className="flex items-center gap-6">
+                      {/* Checkbox + Service Name */}
+                      <label className="flex items-center gap-3 text-white min-w-[250px]">
+                        <input
+                          type="checkbox"
+                          checked={selectedServices[service._id] || false}
+                          onChange={(e) =>
+                            setSelectedServices({
+                              ...selectedServices,
+                              [service._id]: e.target.checked,
+                            })
+                          }
+                        />
 
-                      {service.serviceName}
-                    </label>
+                        <span>{service.serviceName}</span>
+                      </label>
+
+                      {/* Pricing Cards */}
+                      <div className="flex-1">
+                        {renderPricingCards(service._id)}
+                      </div>
+                    </div>
                   )}
 
                   {service.inputType === "counter" && (
-                    <div className="flex items-center justify-between text-white">
-                      <span>{service.serviceName}</span>
+                    <div className="flex items-center justify-between gap-6 text-white">
+                      {/* Service Name */}
+                      <div className="w-[220px] font-medium">
+                        {service.serviceName}
+                      </div>
 
+                      {/* Pricing Cards */}
+                      <div className="flex gap-2 justify-center flex-1">
+                        {renderPricingCards(service._id)}
+                      </div>
+
+                      {/* Counter */}
                       <div className="flex items-center gap-3">
                         <button
                           className="
-  w-8
-  h-8
-  rounded-lg
-  bg-slate-700
-  hover:bg-cyan-600
-  transition-all
-"
+          w-10
+          h-10
+          rounded-lg
+          bg-slate-700
+          hover:bg-cyan-600
+          transition-all
+        "
                           onClick={() =>
                             setSelectedServices({
                               ...selectedServices,
@@ -90,17 +236,19 @@ const Step2ServiceSelection = ({
                           -
                         </button>
 
-                        <span>{selectedServices[service._id] || 0}</span>
+                        <span className="w-8 text-center text-lg font-semibold">
+                          {selectedServices[service._id] || 0}
+                        </span>
 
                         <button
                           className="
-  w-8
-  h-8
-  rounded-lg
-  bg-slate-700
-  hover:bg-cyan-600
-  transition-all
-"
+          w-10
+          h-10
+          rounded-lg
+          bg-slate-700
+          hover:bg-cyan-600
+          transition-all
+        "
                           onClick={() =>
                             setSelectedServices({
                               ...selectedServices,
@@ -116,12 +264,19 @@ const Step2ServiceSelection = ({
                   )}
 
                   {service.inputType === "option-selector" && (
-                    <div className="text-white">
-                      <label className="block mb-3 font-medium">
+                    <div className="flex items-start justify-between gap-6 text-white">
+                      {/* Service Name */}
+                      <div className="w-[220px] font-medium">
                         {service.serviceName}
-                      </label>
+                      </div>
 
-                      <div className="grid md:grid-cols-2 gap-2">
+                      {/* Pricing Cards */}
+                      <div className="flex justify-center flex-1">
+                        {renderPricingCards(service._id)}
+                      </div>
+
+                      {/* Options */}
+                      <div className="w-[280px] space-y-2">
                         {service.options?.map((option) => (
                           <label
                             key={option}
@@ -162,32 +317,43 @@ const Step2ServiceSelection = ({
                   )}
 
                   {service.inputType === "text-input" && (
-                    <div className="text-white">
-                      <label className="block mb-2">
+                    <div className="flex items-center justify-between gap-6 text-white">
+                      {/* Service Name */}
+                      <div className="w-[220px] font-medium">
                         {service.serviceName}
-                      </label>
+                      </div>
 
-                      <input
-                        type="text"
-                        placeholder={service.description || "Enter value"}
-                        value={selectedServices[service._id] || ""}
-                        onChange={(e) =>
-                          setSelectedServices({
-                            ...selectedServices,
-                            [service._id]: e.target.value,
-                          })
-                        }
-                        className="
-        w-full
-        px-4
-        py-2
-        rounded-lg
-        bg-slate-800
-        border
-        border-slate-700
-        text-white
-      "
-                      />
+                      {/* Pricing Cards */}
+                      <div className="flex justify-center flex-1">
+                        {renderPricingCards(service._id)}
+                      </div>
+
+                      {/* Text Input */}
+                      <div className="w-[320px]">
+                        <input
+                          type="text"
+                          placeholder={service.description || "Enter value"}
+                          value={selectedServices[service._id] || ""}
+                          onChange={(e) =>
+                            setSelectedServices({
+                              ...selectedServices,
+                              [service._id]: e.target.value,
+                            })
+                          }
+                          className="
+          w-full
+          px-4
+          py-2
+          rounded-lg
+          bg-slate-800
+          border
+          border-slate-700
+          text-white
+          focus:border-cyan-500
+          focus:outline-none
+        "
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
