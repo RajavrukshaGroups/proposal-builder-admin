@@ -73,7 +73,7 @@ const ProposalTemplateBackground = ({ children, settings }) => {
         "
       />
       {/* Top Divider */}
-      <div className="absolute top-[140px] left-8 right-8 border-t border-black/30" />
+      <div className="  absolute top-[255px] md:top-[140px] left-8 right-8 border-t border-black/30" />
       {/* Left Decoration */}
       <div className="absolute left-4 bottom-[250px]">
         <div className="w-[2px] h-[220px] bg-black"></div>
@@ -95,8 +95,12 @@ const ProposalTemplateBackground = ({ children, settings }) => {
     left-10
     right-10
     flex
+    flex-col
+    md:flex-row
     justify-between
-    items-end
+    items-start
+    md:items-end
+    gap-4
     z-20
   "
       >
@@ -106,15 +110,15 @@ const ProposalTemplateBackground = ({ children, settings }) => {
         </div>
 
         <div className="text-[11px] space-y-1 min-w-[220px]">
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-2 md:justify-end">
             <FaPhoneAlt />
             {settings?.contactPhone}
           </div>
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-2 md:justify-end">
             <FaEnvelope />
             {settings?.contactEmail}
           </div>
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-2 md:justify-end">
             <FaGlobe />
             {settings?.website}
           </div>

@@ -90,7 +90,7 @@ const Sidebar = ({ isOpen }) => {
   bg-slate-950 border-r border-slate-800
   transition-all duration-300 z-40
   flex flex-col
-  ${isOpen ? "w-72" : "w-20"}`}
+  ${isOpen ? "translate-x-0 w-72" : "-translate-x-full w-72 lg:translate-x-0 lg:w-20"}`}
     >
       {/* Logo Section */}
       <div className="h-20 border-b border-slate-800 flex items-center justify-center px-4">

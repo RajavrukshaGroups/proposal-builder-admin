@@ -133,17 +133,19 @@ const Step5ProposalPreview = ({
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         {!proposalData && (
           <button
             onClick={() => setStep(4)}
-            className="px-5 py-2 rounded-xl bg-slate-700 text-white"
+            className="px-5 py-2 rounded-xl bg-slate-700 text-white w-full md:w-auto order-2 md:order-1"
           >
             Back
           </button>
         )}
-        <h1 className="text-3xl font-bold text-black">Proposal Preview</h1>
-        <div />
+        <h1 className="text-2xl md:text-3xl font-bold text-white order-1 md:order-2">
+          Proposal Preview
+        </h1>
+        <div className="hidden md:block order-3" />
       </div>
 
       {/* Proposal Container */}
@@ -152,13 +154,13 @@ const Step5ProposalPreview = ({
         <ProposalTemplateBackground settings={settings}>
           {/* Cover Section */}
           <div className="relative z-10 p-8 min-h-[700px] flex flex-col">
-            <div className="flex justify-between items-start mb-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-4 mb-12">
               <img
                 src={settings?.logo}
                 alt="Agency Logo"
-                className="h-20 object-contain"
+                className="h-16 sm:h-20 object-contain"
               />
-              <div className="text-right max-w-xs">
+              <div className="text-left sm:text-right max-w-xs">
                 <h3 className="font-semibold text-xl">
                   {settings?.agencyName}
                 </h3>
@@ -168,10 +170,12 @@ const Step5ProposalPreview = ({
                 <p>{settings?.contactPhone}</p>
               </div>
             </div>
+            
             <div className="mt-5">
               <h1
                 className="
-      text-6xl
+                
+      text-4xl md:text-6xl
       font-black
       text-slate-900
       leading-tight
@@ -180,7 +184,7 @@ max-w-2xl"
                 {selectedTemplate?.coverTitle}
               </h1>
 
-              <p className="text-orange-500 text-2xl font-semibold mt-4">
+              <p className="text-orange-500 text-xl md:text-2xl font-semibold mt-4">
                 {selectedTemplate?.coverSubtitle}
               </p>
             </div>
@@ -195,7 +199,7 @@ max-w-2xl"
                 Prepared For
               </p>
 
-              <h2 className="text-4xl font-bold text-slate-900 mt-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-4 break-words">
                 {formData.clientCompany || formData.clientName}
               </h2>
 
@@ -239,7 +243,7 @@ max-w-2xl"
           </div> */}
           </div>
           {/* Main Content */}
-          <div className="p-8 space-y-8">
+          <div className="p-8 space-y-8 pb-48 md:pb-32">
             {/* About Company */}
             {selectedTemplate?.aboutCompany && (
               <div>
@@ -410,8 +414,8 @@ max-w-2xl"
             {selectedTemplate?.includePricing && (
               <div>
                 <h2 className="text-2xl font-bold mb-5">Pricing Summary</h2>
-                <div className="border rounded-xl overflow-hidden">
-                  <table className="w-full">
+                <div className="border rounded-xl overflow-x-auto">
+                  <table className="w-full min-w-[400px]">
                     <thead>
                       <tr className="bg-orange-500 text-white">
                         <th className="p-4 text-left">Service</th>
@@ -562,14 +566,14 @@ max-w-2xl"
               <h3 className="font-semibold mb-2">Proposal Validity</h3>
               <p>This proposal is valid for 15 days from the issue date.</p>
             </div>
-            <div className="mt-10 mb-16 flex justify-between">
-              <div>
+            <div className="mt-10 mb-16 flex flex-col sm:flex-row justify-between gap-10">
+              <div className="w-full sm:w-auto">
                 <p className="font-semibold">{settings?.agencyName}</p>
 
                 <div className="h-10"></div>
                 <p className="border-t pt-2">Authorized Signature</p>
               </div>
-              <div>
+              <div className="w-full sm:w-auto">
                 <p>Accepted By Client</p>
 
                 <div className="h-10"></div>
@@ -582,25 +586,25 @@ max-w-2xl"
       </div>
 
       {!proposalData && (
-        <div className="mt-10 flex justify-between">
+        <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
           <button
             onClick={() => setStep(4)}
-            className="px-5 py-2 rounded-xl bg-slate-700 text-white"
+            className="px-5 py-2 rounded-xl bg-slate-700 text-white w-full sm:w-auto order-2 sm:order-1"
           >
             Back
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto order-1 sm:order-2">
             <button
               onClick={saveDraft}
-              className="px-6 py-3 rounded-xl bg-orange-500 text-white"
+              className="px-6 py-3 rounded-xl bg-orange-500 text-white w-full sm:w-auto"
             >
               {editMode ? "Update Proposal" : "Save Draft"}
             </button>
 
             <button
               onClick={generatePDF}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white w-full sm:w-auto"
             >
               Generate PDF
             </button>
