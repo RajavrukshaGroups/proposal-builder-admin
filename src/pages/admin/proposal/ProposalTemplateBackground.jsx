@@ -6,7 +6,7 @@ const ProposalTemplateBackground = ({ children, settings }) => {
         relative
         bg-[#f5f5f5]
         overflow-hidden
-        min-h-[1400px]
+        min-h-screen
         shadow-xl
       "
     >
