@@ -71,11 +71,11 @@ const SavedProposals = () => {
     border
     border-slate-800
     rounded-2xl
-    overflow-hidden
+    overflow-x-auto
     shadow-xl
   "
         >
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-slate-800 text-slate-300">
               <tr>
                 <th className="p-4 text-left">Proposal No</th>
