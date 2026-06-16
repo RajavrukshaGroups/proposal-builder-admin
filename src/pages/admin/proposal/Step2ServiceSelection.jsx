@@ -11,26 +11,32 @@ const Step2ServiceSelection = ({
     console.log("pricingMap", pricingMap);
     if (!pricingMap?.[serviceId]) return null;
 
+    const allPlans = [
+      {
+        label: "Basic",
+        price: pricingMap[serviceId]?.basicPrice,
+      },
+      {
+        label: "Growth",
+        price: pricingMap[serviceId]?.growthPrice,
+      },
+      {
+        label: "Premium",
+        price: pricingMap[serviceId]?.premiumPrice,
+      },
+      {
+        label: "Enterprise",
+        price: pricingMap[serviceId]?.enterprisePrice,
+      },
+    ];
+
+    const plansToShow = budgetLevel
+      ? allPlans.filter((plan) => plan.label === budgetLevel)
+      : allPlans;
+
     return (
       <div className="flex flex-wrap gap-2">
-        {[
-          {
-            label: "Basic",
-            price: pricingMap[serviceId]?.basicPrice,
-          },
-          {
-            label: "Growth",
-            price: pricingMap[serviceId]?.growthPrice,
-          },
-          {
-            label: "Premium",
-            price: pricingMap[serviceId]?.premiumPrice,
-          },
-          {
-            label: "Enterprise",
-            price: pricingMap[serviceId]?.enterprisePrice,
-          },
-        ].map((plan) => (
+        {plansToShow.map((plan) => (
           <div
             key={plan.label}
             className={`w-[120px] py-2 rounded-lg border text-center
@@ -40,7 +46,7 @@ const Step2ServiceSelection = ({
               : "border-slate-700 bg-slate-800"
           }`}
           >
-            <div className="text-xs text-slate-400">{plan.label}</div>
+            {/* <div className="text-xs text-slate-400">{plan.label}</div> */}
 
             <div className="text-white font-semibold">
               ₹{plan.price?.toLocaleString() || 0}
@@ -111,8 +117,8 @@ const gst = subtotal * 0.18;
 
 const finalAmount = subtotal + gst;
   return (
-    <div className="p-6">
-      <div className="p-6">
+    <div className="p-3 sm:p-6">
+      <div className="p-0 sm:p-6">
         {/* <button
           onClick={() => setStep(1)}
           className="mb-6 px-4 py-2 rounded-lg bg-slate-700 text-white"
@@ -121,16 +127,16 @@ const finalAmount = subtotal + gst;
         </button> */}
         {/* <h1 className="text-2xl font-bold text-black mb-6">Select Services</h1> */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-black mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
             Select Services
           </h1>
 
-          <p className="text-black-400">
+          <p className="text-white">
             Choose the services required for this proposal.
           </p>
           <div
             className="
-    mt-4
+    mt-2
     p-4
     rounded-xl
     bg-cyan-500/10
@@ -163,7 +169,7 @@ const finalAmount = subtotal + gst;
   border
   border-slate-800
   rounded-2xl
-  p-6
+  p-3 sm:p-6
   shadow-lg
 "
           >
@@ -176,9 +182,9 @@ const finalAmount = subtotal + gst;
               .map((service) => (
                 <div key={service._id} className="mb-4">
                   {service.inputType === "checkbox" && (
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
                       {/* Checkbox + Service Name */}
-                      <label className="flex items-center gap-3 text-white min-w-[250px]">
+                      <label className="flex items-center gap-3 text-white md:min-w-[250px]">
                         <input
                           type="checkbox"
                           checked={selectedServices[service._id] || false}
@@ -201,82 +207,85 @@ const finalAmount = subtotal + gst;
                   )}
 
                   {service.inputType === "counter" && (
-                    <div className="flex items-center justify-between gap-6 text-white">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6 text-white">
                       {/* Service Name */}
-                      <div className="w-[220px] font-medium">
+                      <div className="font-medium">
                         {service.serviceName}
                       </div>
 
-                      {/* Pricing Cards */}
-                      <div className="flex gap-2 justify-center flex-1">
-                        {renderPricingCards(service._id)}
-                      </div>
+                      {/* Pricing + Counter row */}
+                      <div className="flex items-center justify-between gap-3 md:gap-6 flex-1">
+                        {/* Pricing Cards */}
+                        <div className="flex gap-2">
+                          {renderPricingCards(service._id)}
+                        </div>
 
-                      {/* Counter */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          className="
-          w-10
-          h-10
-          rounded-lg
-          bg-slate-700
-          hover:bg-cyan-600
-          transition-all
-        "
-                          onClick={() =>
-                            setSelectedServices({
-                              ...selectedServices,
-                              [service._id]: Math.max(
-                                (selectedServices[service._id] || 0) - 1,
-                                0,
-                              ),
-                            })
-                          }
-                        >
-                          -
-                        </button>
+                        {/* Counter */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          <button
+                            className="
+            w-10
+            h-10
+            rounded-lg
+            bg-slate-700
+            hover:bg-cyan-600
+            transition-all
+          "
+                            onClick={() =>
+                              setSelectedServices({
+                                ...selectedServices,
+                                [service._id]: Math.max(
+                                  (selectedServices[service._id] || 0) - 1,
+                                  0,
+                                ),
+                              })
+                            }
+                          >
+                            -
+                          </button>
 
-                        <span className="w-8 text-center text-lg font-semibold">
-                          {selectedServices[service._id] || 0}
-                        </span>
+                          <span className="w-8 text-center text-lg font-semibold">
+                            {selectedServices[service._id] || 0}
+                          </span>
 
-                        <button
-                          className="
-          w-10
-          h-10
-          rounded-lg
-          bg-slate-700
-          hover:bg-cyan-600
-          transition-all
-        "
-                          onClick={() =>
-                            setSelectedServices({
-                              ...selectedServices,
-                              [service._id]:
-                                (selectedServices[service._id] || 0) + 1,
-                            })
-                          }
-                        >
-                          +
-                        </button>
+                          <button
+                            className="
+            w-10
+            h-10
+            rounded-lg
+            bg-slate-700
+            hover:bg-cyan-600
+            transition-all
+          "
+                            onClick={() =>
+                              setSelectedServices({
+                                ...selectedServices,
+                                [service._id]:
+                                  (selectedServices[service._id] || 0) + 1,
+                              })
+                            }
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {service.inputType === "option-selector" && (
-                    <div className="flex items-start justify-between gap-6 text-white">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 md:gap-6 text-white">
                       {/* Service Name */}
-                      <div className="w-[220px] font-medium">
+                      <div className="font-medium">
                         {service.serviceName}
                       </div>
 
                       {/* Pricing Cards */}
-                      <div className="flex justify-center flex-1">
+                      <div className="flex flex-1">
                         {renderPricingCards(service._id)}
                       </div>
 
                       {/* Options */}
-                      <div className="w-[280px] space-y-2">
+                      <div className="w-full md:w-[280px] space-y-2">
                         {service.options?.map((option) => (
                           <label
                             key={option}
@@ -317,19 +326,19 @@ const finalAmount = subtotal + gst;
                   )}
 
                   {service.inputType === "text-input" && (
-                    <div className="flex items-center justify-between gap-6 text-white">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6 text-white">
                       {/* Service Name */}
-                      <div className="w-[220px] font-medium">
+                      <div className="font-medium">
                         {service.serviceName}
                       </div>
 
                       {/* Pricing Cards */}
-                      <div className="flex justify-center flex-1">
+                      <div className="flex flex-1">
                         {renderPricingCards(service._id)}
                       </div>
 
                       {/* Text Input */}
-                      <div className="w-[320px]">
+                      <div className="w-full md:w-[320px]">
                         <input
                           type="text"
                           placeholder={service.description || "Enter value"}
