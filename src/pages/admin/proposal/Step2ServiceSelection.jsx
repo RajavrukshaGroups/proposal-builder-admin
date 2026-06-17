@@ -160,7 +160,37 @@ const finalAmount = subtotal + gst;
           </div>
         </div>
 
-        {categories.map((category) => (
+        {categories.map((category) => {
+          // Get all checkbox-type services in this category
+          const categoryCheckboxServices = services.filter(
+            (service) =>
+              service.categoryId?._id === category._id &&
+              service.inputType === "checkbox"
+          );
+
+          const allCheckboxSelected =
+            categoryCheckboxServices.length > 0 &&
+            categoryCheckboxServices.every(
+              (service) => selectedServices[service._id] === true
+            );
+
+          const handleSelectAll = () => {
+            const updatedServices = { ...selectedServices };
+            if (allCheckboxSelected) {
+              // Deselect all checkbox services in this category
+              categoryCheckboxServices.forEach((service) => {
+                updatedServices[service._id] = false;
+              });
+            } else {
+              // Select all checkbox services in this category
+              categoryCheckboxServices.forEach((service) => {
+                updatedServices[service._id] = true;
+              });
+            }
+            setSelectedServices(updatedServices);
+          };
+
+          return (
           <div
             key={category._id}
             className="
@@ -173,9 +203,25 @@ const finalAmount = subtotal + gst;
   shadow-lg
 "
           >
-            <h2 className="text-xl font-semibold text-cyan-400 mb-5 border-b border-slate-800 pb-3">
-              {category.name}
-            </h2>
+            <div className="flex items-center justify-between mb-5 border-b border-slate-800 pb-3">
+              <h2 className="text-xl font-semibold text-cyan-400">
+                {category.name}
+              </h2>
+
+              {categoryCheckboxServices.length > 0 && category.name === "SEO" && (
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={allCheckboxSelected}
+                    onChange={handleSelectAll}
+                    className="accent-cyan-500 w-4 h-4"
+                  />
+                  <span className="text-sm text-slate-300 hover:text-cyan-400 transition-colors">
+                    Select All
+                  </span>
+                </label>
+              )}
+            </div>
 
             {services
               .filter((service) => service.categoryId?._id === category._id)
@@ -368,7 +414,8 @@ const finalAmount = subtotal + gst;
                 </div>
               ))}
           </div>
-        ))}
+          );
+        })}
       </div>
       {/* <div className="mt-8 flex justify-between">
         <button
